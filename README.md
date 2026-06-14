@@ -26,8 +26,35 @@ Karpathy's pattern, re-implemented in **native Rust**.
 - 📈 **VectorBT evaluator** — plug in a vectorized backtest as the frozen scalar metric for
   trading-strategy and quantitative search (any evaluator that returns a number works).
 
+## Quick start (30 seconds)
+The crate lives in [`rust/vision_autoresearch`](rust/vision_autoresearch). Run the bundled
+example — a keep-or-revert loop ratcheting toward a frozen target:
+
+```bash
+git clone https://github.com/MetaBrainAI-AGI/VisionAutoResearch.git
+cd VisionAutoResearch/rust/vision_autoresearch
+cargo run --release --example keep_or_revert
+```
+
+```
+VisionAutoResearch — keep-or-revert loop (Rust port of Karpathy's idea)
+  target (hidden from the proposer): [1.0, -2.0, 3.0, 0.5]
+  start baseline SSE: 14.25000
+
+  iter   0  KEEP   metric 12.98446  baseline -> 12.98446  [0000001]
+  iter   6  KEEP   metric 12.30771  baseline -> 12.30771  [0000007]
+  ...
+DONE: 200 iterations — N kept, M reverted.
+  baseline ratcheted 14.25000 -> ...  (closer to target)
+```
+
+Use it as a library — implement the `Evaluator`, `Proposer`, and `Ratchet` traits for your own
+artifact, or use the built-in `ScalarEvaluator` / `VectorBtEvaluator` + `LocalProposer`. Run the
+tests with `cargo test --release`.
+
 ## Status
-The Rust engine is in active build. This repo is the public home; the binary + crate land here.
+Engine + crate are **live in this repo** (`cargo build`/`test`/`run --example` all green). The
+optional `pyo3` feature exposes the evaluator as a native Python kernel for embedding hosts.
 
 ## License
 MIT — free to use, modify, and distribute. See [`LICENSE`](LICENSE). Original pattern © Andrej Karpathy

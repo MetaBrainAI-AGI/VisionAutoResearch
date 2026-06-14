@@ -1,0 +1,30 @@
+[package]
+name = "vision_autoresearch"
+version = "1.0.0"
+edition = "2021"
+description = "VisionAutoResearch — native Rust port of Karpathy's keep-or-revert autoresearch loop, generalized: Run{target,evaluator,metric,goal,strategies} + propose->apply->evaluate(frozen)->keep-or-revert ratchet + rayon scenario sweep + pluggable Evaluator/ScenarioSource traits + git-history of kept changes + jsonl attempt log."
+license = "LicenseRef-VisionPRIME-Commercial"
+
+[lib]
+name = "vision_autoresearch"
+# rlib so `cargo test` links the pure-Rust core; cdylib for the PyO3 extension module.
+crate-type = ["rlib", "cdylib"]
+
+[features]
+# Pure-Rust core (loop, traits, evaluators, scenario sweep, git ratchet, jsonl log) compiles
+# and is UNIT-TESTED with NO pyo3 — so `cargo test` never needs the Python interpreter link.
+# `python` adds the #[pyfunction]/#[pyclass] facade (extension-module wheel).
+default = []
+python = ["pyo3"]
+
+[dependencies]
+# extension-module + abi3-py39: one wheel works across CPython >= 3.9 (matches metabrain_core).
+pyo3 = { version = "0.22", features = ["extension-module", "abi3-py39"], optional = true }
+rayon = "1"                                   # parallel scenario sweep (Gate-2 win)
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"                              # attempt-log jsonl rows + structured results
+
+# NOTE: release profile (opt-level=3 + lto) is defined ONCE at the workspace root
+# (rust/Cargo.toml); Cargo ignores per-member [profile.*] in a workspace, so it is
+# intentionally omitted here to avoid the "profiles for the non root package will be
+# ignored" warning. The packaged artifact still ships fully optimized via the root profile.

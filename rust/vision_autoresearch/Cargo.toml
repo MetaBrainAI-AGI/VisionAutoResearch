@@ -10,12 +10,26 @@ name = "vision_autoresearch"
 # rlib so `cargo test` links the pure-Rust core; cdylib for the PyO3 extension module.
 crate-type = ["rlib", "cdylib"]
 
+# Standalone CLI: `run` (keep-or-revert), `walkforward` (eval a CSV/JSON series), `example`.
+# Bin name is `_cli`-suffixed so its output filename (and Windows .pdb) does NOT collide with the
+# `vision_autoresearch` lib/cdylib target — Cargo warns on a same-stem lib+bin. Invoke:
+# `cargo run --release --bin vision_autoresearch_cli -- <subcommand> [flags]`.
+[[bin]]
+name = "vision_autoresearch_cli"
+path = "src/bin/vision_autoresearch.rs"
+
 [features]
 # Pure-Rust core (loop, traits, evaluators, scenario sweep, git ratchet, jsonl log) compiles
 # and is UNIT-TESTED with NO pyo3 — so `cargo test` never needs the Python interpreter link.
 # `python` adds the #[pyfunction]/#[pyclass] facade (extension-module wheel).
 default = []
 python = ["pyo3"]
+# `timesfm-onnx` adds an OPTIONAL ONNX TimesFM forecaster for the walk-forward evaluator. Per the
+# crate's established convention (metabrain_core/src/onnx_predict.rs) the dependency it gates is
+# `tract-onnx` (PURE-RUST ONNX inference — NO native onnxruntime/`ort` dep), so the no-native-dep
+# posture holds. The feature NAME honors the task's `ort` intent; the impl uses tract. Off by
+# default, so `cargo build --release` and `cargo test --release` need ZERO new deps.
+timesfm-onnx = ["tract-onnx"]
 
 [dependencies]
 # extension-module + abi3-py39: one wheel works across CPython >= 3.9 (matches metabrain_core).
@@ -23,6 +37,11 @@ pyo3 = { version = "0.22", features = ["extension-module", "abi3-py39"], optiona
 rayon = "1"                                   # parallel scenario sweep (Gate-2 win)
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"                              # attempt-log jsonl rows + structured results
+# Optional ONNX TimesFM forecaster (feature = "timesfm-onnx"). Pure-Rust, no native lib — matches
+# metabrain_core's tract-onnx 0.21 convention. ndarray is reached via `tract_onnx::prelude::
+# tract_ndarray` (re-exported by tract — NOT a separate crate). Gated, so the default build pulls
+# nothing extra.
+tract-onnx = { version = "0.21", optional = true }
 
 # NOTE: release profile (opt-level=3 + lto) is defined ONCE at the workspace root
 # (rust/Cargo.toml); Cargo ignores per-member [profile.*] in a workspace, so it is

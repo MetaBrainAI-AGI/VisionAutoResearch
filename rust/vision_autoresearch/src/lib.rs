@@ -31,6 +31,7 @@ pub mod evaluator;
 pub mod metric;
 pub mod proposer;
 pub mod scenario;
+pub mod timesfm_walkforward;
 
 // Re-export the public surface so downstream Rust crates (and the facade) get a flat API.
 pub use attempt_log::{AttemptLog, AttemptRow, GitRatchet, NoopRatchet, Ratchet};
@@ -44,6 +45,12 @@ pub use evaluator::{
 pub use metric::{Direction, KeepOrRevert, Metric};
 pub use proposer::{Candidate, LocalProposer, Proposer, VariationProposer};
 pub use scenario::{MirofishScenarioSource, ScenarioSource};
+pub use timesfm_walkforward::{
+    make_forecaster, EwmaForecaster, FoldScore, Forecaster, ForecasterKind, ForecasterSpec,
+    HoltForecaster, NaiveForecaster, WalkForward,
+};
+#[cfg(feature = "timesfm-onnx")]
+pub use timesfm_walkforward::{ArcForecaster, OnnxForecaster};
 
 // ───────────────────────── PyO3 facade (feature = "python") ─────────────────────────
 #[cfg(feature = "python")]

@@ -1,29 +1,36 @@
 # VisionAutoResearch
 
-**Rust-native autonomous research loop for VisionPRIME** — a native port of
-[Karpathy's `autoresearch`](https://github.com/karpathy/autoresearch) keep-or-revert
-pattern, generalized to *any* optimize-against-a-metric problem.
+**A Rust-native, parallel autonomous-research engine** — open source, free.
 
-## The loop
-Give it **one editable target + a frozen evaluator + a scalar metric + a goal**, then it runs:
+> **Built on Andrej Karpathy's idea.** VisionAutoResearch is a Rust port + generalization of
+> **[`karpathy/autoresearch`](https://github.com/karpathy/autoresearch)** by **Andrej Karpathy**.
+> The original three-file Python project introduced the *keep-or-revert overnight research loop*;
+> all credit for the idea goes to him — please ⭐ and read [the original](https://github.com/karpathy/autoresearch).
+
+## What it is
+Give it **one editable target + a frozen evaluator + a scalar metric + a goal**, and it runs:
 
 ```
 propose a variation  ->  apply  ->  evaluate (frozen)  ->  keep if the metric improved, else revert  ->  log  ->  repeat
 ```
 
 The output is a **git history of validated improvements** plus a full attempt log — exactly
-Karpathy's overnight pattern, but native Rust with a **rayon-parallel scenario sweep** so it runs
-*every* variation/scenario concurrently.
+Karpathy's pattern, re-implemented in **native Rust**.
 
-## VisionPRIME integration
-- **Mirofish** — the scenario source (forward / monte-carlo rollouts feed the sweep).
-- **VectorBT evaluator** — vectorized backtest → the scalar metric (for strategy search).
-- **Dashboard** `/autoresearch` — configure target, evaluator, metric, conditions, goals,
-  strategies/variations, and **schedule** runs.
-- Driven by the VisionPRIME runtime; scenarios → keep-or-revert → validated improvements.
+## What this version adds
+- 🦀 **Native Rust** — no Python runtime required; ship a single pre-compiled binary.
+- ⚡ **Parallel processing** — a `rayon`-powered scenario sweep runs *every* variation/scenario
+  concurrently across all cores (not one-at-a-time overnight).
+- 🐟 **MiroFish Simulation Lab integration** — forward / Monte-Carlo rollouts generate the
+  scenario space, so the loop explores far more of the search surface per wall-clock hour.
+- 📈 **VectorBT evaluator** — plug in a vectorized backtest as the frozen scalar metric for
+  trading-strategy and quantitative search (any evaluator that returns a number works).
 
 ## Status
-Private. Source is compiled and shipped pre-built (Rust-native standard); the long
-from-source build lives only in the master-dev tooling, never shipped.
+The Rust engine is in active build. This repo is the public home; the binary + crate land here.
 
-— MetaBrainAGI · VisionPRIME
+## License
+MIT — free to use, modify, and distribute. See [`LICENSE`](LICENSE). Original pattern © Andrej Karpathy
+(`karpathy/autoresearch`, MIT); this Rust port © MetaBrainAGI.
+
+— **VisionAutoResearch** · part of the [VisionPRIME](https://github.com/MetaBrainAI-AGI) ecosystem · by MetaBrainAGI
